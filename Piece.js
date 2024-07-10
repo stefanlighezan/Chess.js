@@ -12,9 +12,17 @@ class Piece {
         return this.color;
     }
 
-    //Debug Functions
+    // Debug Function
     toString() {
         return `${this.color} ${this.type}`;
+    }
+
+    move(currentRow, currentColumn, desiredRow, desiredColumn, setup) {
+        // Default move method, overridden by specific piece types
+        if(this.getType() == PIECE_TYPE.PAWN) {
+            Pawn.move(currentRow, currentColumn, desiredRow, desiredColumn, setup)
+        }
+        return setup;
     }
 }
 
@@ -24,7 +32,8 @@ const PIECE_TYPE = Object.freeze({
     BISHOP: 'Bishop',
     ROOK: 'Rook',
     QUEEN: 'Queen',
-    KING: 'King'
+    KING: 'King',
+    NULL: 'Null',
 });
 
 const COLOR = Object.freeze({
@@ -35,6 +44,21 @@ const COLOR = Object.freeze({
 class Pawn extends Piece {
     constructor(color) {
         super(PIECE_TYPE.PAWN, color);
+        this.hasMoved = false; // Track if the pawn has moved before
+    }
+
+    move(currentRow, currentColumn, desiredRow, desiredColumn, setup) {
+        // Check if it's the first move
+        if(setup[desiredRow][desiredColumn] instanceof Empty) {
+            console.log("here")
+            setup[desiredRow][desiredColumn] = setup[currentRow][currentColumn]  
+            setup[currentRow][currentColumn] = new Empty()
+            return setup
+        }
+
+        // If none of the conditions were met, it's an invalid move for pawn
+        alert("Invalid Move for Pawn");
+        return setup;
     }
 }
 
@@ -65,5 +89,11 @@ class Queen extends Piece {
 class King extends Piece {
     constructor(color) {
         super(PIECE_TYPE.KING, color);
+    }
+}
+
+class Empty extends Piece {
+    constructor(color) {
+        super(PIECE_TYPE.NULL, color);
     }
 }

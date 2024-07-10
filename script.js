@@ -1,253 +1,89 @@
-// Define constants for piece types and colors
-const PIECE_TYPE = {
-    PAWN: 'pawn',
-    KNIGHT: 'knight',
-    BISHOP: 'bishop',
-    ROOK: 'rook',
-    QUEEN: 'queen',
-    KING: 'king'
-};
-
-const COLOR = {
-    WHITE: 'white',
-    BLACK: 'black'
-};
-
-// Piece classes with getType and getColor methods
-class Piece {
-    constructor(type, color) {
-        this.type = type;
-        this.color = color;
-    }
-
-    getType() {
-        return this.type;
-    }
-
-    getColor() {
-        return this.color;
-    }
+let chessGame = {
+    turn: "white",
+    selected: null,
+    selectedPos: null
 }
 
-class Pawn extends Piece {
-    constructor(color) {
-        super(PIECE_TYPE.PAWN, color);
-    }
+let setup = [
+    [new Rook(COLOR.BLACK), new Knight(COLOR.BLACK), new Bishop(COLOR.BLACK), new Queen(COLOR.BLACK), new King(COLOR.BLACK), new Bishop(COLOR.BLACK), new Knight(COLOR.BLACK), new Rook(COLOR.BLACK)],
+    Array(8).fill(new Pawn(COLOR.BLACK)),
+    Array(8).fill(new Empty()),
+    Array(8).fill(new Empty()),
+    Array(8).fill(new Empty()),
+    Array(8).fill(new Empty()),
+    Array(8).fill(new Pawn(COLOR.WHITE)),
+    [new Rook(COLOR.WHITE), new Knight(COLOR.WHITE), new Bishop(COLOR.WHITE), new Queen(COLOR.WHITE), new King(COLOR.WHITE), new Bishop(COLOR.WHITE), new Knight(COLOR.WHITE), new Rook(COLOR.WHITE)]
+];
 
-    isValidMove(fromRow, fromCol, toRow, toCol, color) {
-        const direction = (color === COLOR.WHITE) ? -1 : 1;
-
-        // Normal move (one square forward)
-        if (fromCol === toCol && chessboard[toRow][toCol] === null) {
-            if (fromRow + direction === toRow) {
-                return true;
-            }
-            // Initial two-square move
-            if (fromRow === (color === COLOR.WHITE ? 6 : 1) && fromRow + 2 * direction === toRow && chessboard[toRow][toCol] === null) {
-                return true;
-            }
-        }
-
-        // Capture diagonally
-        if (Math.abs(fromCol - toCol) === 1 && fromRow + direction === toRow && chessboard[toRow][toCol] && chessboard[toRow][toCol].color !== color) {
-            return true;
-        }
-
-        return false;
-    }
-}
-
-class Rook extends Piece {
-    constructor(color) {
-        super(PIECE_TYPE.ROOK, color);
-    }
-
-    isValidMove(fromRow, fromCol, toRow, toCol) {
-        // Rook moves horizontally or vertically
-        if (fromRow === toRow || fromCol === toCol) {
-            // Check if there are any pieces blocking the path
-            if (fromRow === toRow) { // Horizontal move
-                const step = Math.sign(toCol - fromCol);
-                for (let col = fromCol + step; col !== toCol; col += step) {
-                    if (chessboard[fromRow][col] !== null) {
-                        return false;
-                    }
-                }
-            } else { // Vertical move
-                const step = Math.sign(toRow - fromRow);
-                for (let row = fromRow + step; row !== toRow; row += step) {
-                    if (chessboard[row][fromCol] !== null) {
-                        return false;
-                    }
-                }
-            }
-            // Check if the destination square is either empty or has an opponent's piece
-            return chessboard[toRow][toCol] === null || chessboard[toRow][toCol].color !== this.color;
-        }
-        return false;
-    }
-}
-
-class Knight extends Piece {
-    constructor(color) {
-        super(PIECE_TYPE.KNIGHT, color);
-    }
-
-    isValidMove(fromRow, fromCol, toRow, toCol) {
-        // Knight moves in an L shape: 2 squares in one direction and 1 square perpendicular
-        const dx = Math.abs(toCol - fromCol);
-        const dy = Math.abs(toRow - fromRow);
-        return (dx === 2 && dy === 1) || (dx === 1 && dy === 2);
-    }
-}
-
-class Bishop extends Piece {
-    constructor(color) {
-        super(PIECE_TYPE.BISHOP, color);
-    }
-
-    isValidMove(fromRow, fromCol, toRow, toCol) {
-        // Bishop moves diagonally
-        if (Math.abs(fromRow - toRow) === Math.abs(fromCol - toCol)) {
-            const stepRow = Math.sign(toRow - fromRow);
-            const stepCol = Math.sign(toCol - fromCol);
-            for (let i = 1; i < Math.abs(fromRow - toRow); i++) {
-                if (chessboard[fromRow + i * stepRow][fromCol + i * stepCol] !== null) {
-                    return false;
-                }
-            }
-            // Check if the destination square is either empty or has an opponent's piece
-            return chessboard[toRow][toCol] === null || chessboard[toRow][toCol].color !== this.color;
-        }
-        return false;
-    }
-}
-
-class Queen extends Piece {
-    constructor(color) {
-        super(PIECE_TYPE.QUEEN, color);
-    }
-
-    isValidMove(fromRow, fromCol, toRow, toCol) {
-        // Queen combines rook and bishop moves
-        if (fromRow === toRow || fromCol === toCol) {
-            // Rook-like move
-            return new Rook(this.color).isValidMove(fromRow, fromCol, toRow, toCol);
-        } else if (Math.abs(fromRow - toRow) === Math.abs(fromCol - toCol)) {
-            // Bishop-like move
-            return new Bishop(this.color).isValidMove(fromRow, fromCol, toRow, toCol);
-        }
-        return false;
-    }
-}
-
-class King extends Piece {
-    constructor(color) {
-        super(PIECE_TYPE.KING, color);
-    }
-
-    isValidMove(fromRow, fromCol, toRow, toCol) {
-        // King moves one square in any direction
-        const dx = Math.abs(toCol - fromCol);
-        const dy = Math.abs(toRow - fromRow);
-        return dx <= 1 && dy <= 1;
-    }
-}
-
-// Initialize the chessboard and piece setup
 document.addEventListener("DOMContentLoaded", function() {
-    const chessboard = [];
-    const pieces = [];
+    initializeChessboard()
+});
 
-    for (let i = 0; i < 8; i++) {
-        chessboard.push(Array(8).fill(null));
+
+function initializeChessboard() {
+    const chessboard = document.getElementById('chessboard');
+
+    chessboard.innerHTML = ""
+
+    for (let i = 0; i < 64; i++) {
+        const square = document.createElement('div');
+        square.classList.add('square');
+        // Calculate row and column
+        const row = Math.floor(i / 8);
+        const col = i % 8;
+
+        // Alternate colors
+        if ((row + col) % 2 === 0) {
+            square.classList.add('white');
+        } else {
+            square.classList.add('black');
+        }
+
+        chessboard.appendChild(square);
     }
 
-    const initialSetup = [
-        [new Rook(COLOR.BLACK), new Knight(COLOR.BLACK), new Bishop(COLOR.BLACK), new Queen(COLOR.BLACK), new King(COLOR.BLACK), new Bishop(COLOR.BLACK), new Knight(COLOR.BLACK), new Rook(COLOR.BLACK)],
-        Array(8).fill(new Pawn(COLOR.BLACK)),
-        Array(8).fill(null),
-        Array(8).fill(null),
-        Array(8).fill(null),
-        Array(8).fill(null),
-        Array(8).fill(new Pawn(COLOR.WHITE)),
-        [new Rook(COLOR.WHITE), new Knight(COLOR.WHITE), new Bishop(COLOR.WHITE), new Queen(COLOR.WHITE), new King(COLOR.WHITE), new Bishop(COLOR.WHITE), new Knight(COLOR.WHITE), new Rook(COLOR.WHITE)]
-    ];
+    // Piece setup
 
     for (let row = 0; row < 8; row++) {
         for (let col = 0; col < 8; col++) {
-            const piece = initialSetup[row][col];
+            const piece = setup[row][col];
             if (piece) {
-                chessboard[row][col] = piece;
-                pieces.push(piece);
+                const square = chessboard.children[row * 8 + col];
+                const pieceElement = document.createElement('span');
+                pieceElement.classList.add('piece');
+                square.addEventListener('click', function() {
+                    if (chessGame.selected == null) {
+                        chessGame.selected = setup[row][col]
+                        chessGame.selectedPos = {r: row, c: col}
+                        console.log(chessGame.selectedPos)
+                    } else {
+                        console.log("moved")
+                        setup = chessGame.selected.move(chessGame.selectedPos["r"], chessGame.selectedPos["c"], row, col, setup);
+                        initializeChessboard()
+                        chessGame.selected = null;
+                        chessGame.selectedPos = null
+                    }
+
+                    // Clear selected after movement
+                });
+
+                square.addEventListener('contextmenu', (ev) => {
+                    ev.preventDefault();
+                    chessGame.selected = null
+                    chessGame.selectedPos = null
+                })
+
+                pieceElement.textContent = getPieceSymbol(piece); // Get the correct symbol for the piece
+                square.appendChild(pieceElement);
             }
         }
     }
 
-    // Event handling for moving pieces
-    let selectedSquare = null;
-
-    chessboard.forEach((row, rowIndex) => {
-        row.forEach((piece, colIndex) => {
-            if (piece) {
-                const square = document.createElement('div');
-                square.classList.add('square');
-                square.dataset.row = rowIndex;
-                square.dataset.col = colIndex;
-                square.textContent = getPieceSymbol(piece);
-                square.addEventListener('click', () => handlePieceClick(rowIndex, colIndex));
-                document.getElementById('chessboard').appendChild(square);
-            }
-        });
-    });
-
-    function handlePieceClick(row, col) {
-        const clickedPiece = chessboard[row][col];
-        if (!selectedSquare) {
-            if (clickedPiece && clickedPiece.color === chessGame.turn) {
-                selectedSquare = { row, col };
-                document.querySelector(`.square[data-row="${row}"][data-col="${col}"]`).classList.add('selected');
-            }
-        } else {
-            const { row: fromRow, col: fromCol } = selectedSquare;
-            if (isValidMove(fromRow, fromCol, row, col)) {
-                movePiece(fromRow, fromCol, row, col);
-                selectedSquare = null;
-                updateBoardUI();
-            } else {
-                console.log("Invalid move!");
-            }
-        }
-    }
-
-    function isValidMove(fromRow, fromCol, toRow, toCol) {
-        const piece = chessboard[fromRow][fromCol];
-        return piece.isValidMove(fromRow, fromCol, toRow, toCol, piece.color);
-    }
-
-    function movePiece(fromRow, fromCol, toRow, toCol) {
-        chessboard[toRow][toCol] = chessboard[fromRow][fromCol];
-        chessboard[fromRow][fromCol] = null;
-        chessGame.turn = (chessGame.turn === COLOR.WHITE) ? COLOR.BLACK : COLOR.WHITE;
-    }
-
-    function updateBoardUI() {
-        const board = document.getElementById('chessboard');
-        board.innerHTML = ''; // Clear the board
-
-        chessboard.forEach((row, rowIndex) => {
-            row.forEach((piece, colIndex) => {
-                if (piece) {
-                    const square = document.createElement('div');
-                    square.classList.add('square');
-                    square.dataset.row = rowIndex;
-                    square.dataset.col = colIndex;
-                    square.textContent = getPieceSymbol(piece);
-                    square.addEventListener('click', () => handlePieceClick(rowIndex, colIndex));
-                    board.appendChild(square);
-                }
-            });
-        });
+    function handleSquareClick(row, col) {
+        const square = chessboard.children[row * 8 + col];
+        // You can do something with the selected piece here
+        chessGame.selected = { row, col }; // Example: Saving the selected square
+        console.log(`Selected square: (${row}, ${col})`);
     }
 
     function getPieceSymbol(piece) {
@@ -289,4 +125,4 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     }
-});
+}
