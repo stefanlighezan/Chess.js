@@ -1,3 +1,4 @@
+
 let chessGame = {
   turn: COLOR.WHITE,
   selected: null,
@@ -6,7 +7,7 @@ let chessGame = {
 
 const container = document.getElementById("container");
 
-let setup = newBadChessVariant(); // Initialize with the bad chess variant
+let setup = newBadChessVariant();
 
 document.addEventListener("DOMContentLoaded", function () {
   initializeChessboard();
@@ -52,7 +53,7 @@ document.addEventListener("DOMContentLoaded", function () {
   resetButton.addEventListener("click", resetBoard);
   badChessButton.addEventListener("click", function () {
     setup = newBadChessVariant();
-    resetBoard(); // Optionally reset other game state when changing variants
+    resetBoard();
   });
 });
 
@@ -67,37 +68,31 @@ function newBadChessVariant() {
     PIECE_TYPE.QUEEN,
   ];
 
-  let whitePiecesLeft = 16; // Including 1 King
-  let blackPiecesLeft = 16; // Including 1 King
+  let whitePiecesLeft = 16;
+  let blackPiecesLeft = 16;
 
-  // Initialize the board
   for (let row = 0; row < 8; row++) {
     setup[row] = [];
     
-    // Determine color based on row position
-    let color = COLOR.BLACK; // Default to black for top two ranks
+    let color = COLOR.BLACK;
     if (row >= 6) {
-      color = COLOR.WHITE; // Switch to white for bottom two ranks
+      color = COLOR.WHITE;
     }
 
-    // Shuffle piece order for each row
     pieceOrder.sort(() => Math.random() - 0.5);
 
     for (let col = 0; col < 8; col++) {
       let piece = new Empty();
       
-      // Ensure one king per side
       if ((row === 0 || row === 7) && col === 4) {
         piece = new King(row === 0 ? COLOR.BLACK : COLOR.WHITE);
         if (row === 0) blackPiecesLeft--;
         else whitePiecesLeft--;
       } else {
-        // Randomly assign other pieces
         if ((color === COLOR.WHITE && whitePiecesLeft > 0) || (color === COLOR.BLACK && blackPiecesLeft > 0)) {
           const randomPieceType = pieceTypes[Math.floor(Math.random() * pieceTypes.length)];
           piece = createPiece(randomPieceType, color);
           
-          // Decrease count for the assigned color
           if (color === COLOR.BLACK) {
             blackPiecesLeft--;
           } else {
@@ -112,7 +107,6 @@ function newBadChessVariant() {
 
   return setup;
 }
-
 
 function createPiece(pieceType, color) {
   switch (pieceType) {
@@ -132,7 +126,6 @@ function createPiece(pieceType, color) {
 }
 
 function resetBoard() {
-  // Reset game state variables if any
   chessGame.turn = COLOR.WHITE;
   chessGame.selected = null;
   chessGame.selectedPos = null;
@@ -203,10 +196,10 @@ function initializeChessboard() {
                   return;
                 }
 
-                if (chessGame.turn == COLOR.WHITE) {
-                  chessGame.turn = COLOR.BLACK;
-                } else {
-                  chessGame.turn = COLOR.WHITE;
+                chessGame.turn = (chessGame.turn == COLOR.WHITE) ? COLOR.BLACK : COLOR.WHITE;
+
+                if (chessGame.turn === COLOR.BLACK) {
+                  setTimeout(moveAI, 500); // Delay to simulate thinking time
                 }
               }
             }
@@ -306,16 +299,16 @@ function isKingMissing(setup) {
 function declareWinner() {
   if (isKingMissing(setup)) {
     if (!isKingPresent(setup, COLOR.WHITE)) {
-      chessboard.classList.add("tremor"); // Apply tremor effect
+      chessboard.classList.add("tremor");
       alert("Black wins!");
     } else if (!isKingPresent(setup, COLOR.BLACK)) {
-      chessboard.classList.add("tremor"); // Apply tremor effect
+      chessboard.classList.add("tremor");
       alert("White wins!");
     }
   }
   setTimeout(() => {
-    location.reload(); // Reload page after delay
-  }, 1000); // Adjust delay time as needed
+    location.reload();
+  }, 1000);
 }
 
 function isKingPresent(setup, color) {
@@ -328,4 +321,34 @@ function isKingPresent(setup, color) {
     }
   }
   return false;
+}
+
+function moveAI() {
+  const moves = [];
+
+  for (let row = 0; row < 8; row++) {
+    for (let col = 0; col < 8; col++) {
+      const piece = setup[row][col];
+      if (piece.getColor() === COLOR.BLACK) {
+        const possibleMoves = piece.getPossibleMoves(row, col, setup);
+        possibleMoves.forEach(move => {
+          moves.push({ piece, from: { row, col }, to: move });
+        });
+      }
+    }
+  }
+
+  if (moves.length > 0) {
+    const randomMove = moves[Math.floor(Math.random() * moves.length)];
+    const { piece, from, to } = randomMove;
+    setup = piece.move(from.row, from.col, to.row, to.col, setup);
+    initializeChessboard();
+
+    if (isKingMissing(setup)) {
+      declareWinner();
+      return;
+    }
+
+    chessGame.turn = COLOR.WHITE;
+  }
 }
