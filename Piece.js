@@ -26,6 +26,62 @@ class Piece {
     getPossibleMoves(currentRow, currentColumn, setup) {
       return [];
     }
+
+    isKingInCheck(setup, color) {
+        let kingPosition = null;
+        // Find the king
+        for (let row = 0; row < 8; row++) {
+          for (let col = 0; col < 8; col++) {
+            const piece = setup[row][col];
+            if (piece.getType() === PIECE_TYPE.KING && piece.getColor() === color) {
+              kingPosition = { row, col };
+              break;
+            }
+          }
+        }
+    
+        if (!kingPosition) return false;
+    
+        // Check if any opponent piece can attack the king
+        for (let row = 0; row < 8; row++) {
+          for (let col = 0; col < 8; col++) {
+            const piece = setup[row][col];
+            if (piece.getColor() !== color && piece.getColor() !== null) {
+              const possibleMoves = piece.getPossibleMoves(row, col, setup);
+              for (const move of possibleMoves) {
+                if (move.row === kingPosition.row && move.col === kingPosition.col) {
+                  return true;
+                }
+              }
+            }
+          }
+        }
+    
+        return false;
+      }
+    
+      isCheckmate(setup, color) {
+        if (!this.isKingInCheck(setup, color)) return false;
+    
+        for (let row = 0; row < 8; row++) {
+          for (let col = 0; col < 8; col++) {
+            const piece = setup[row][col];
+            if (piece.getColor() === color) {
+              const possibleMoves = piece.getPossibleMoves(row, col, setup);
+              for (const move of possibleMoves) {
+                const tempSetup = JSON.parse(JSON.stringify(setup));
+                tempSetup[move.row][move.col] = tempSetup[row][col];
+                tempSetup[row][col] = new Empty();
+                if (!this.isKingInCheck(tempSetup, color)) {
+                  return false;
+                }
+              }
+            }
+          }
+        }
+    
+        return true;
+      }
   }
   
   const PIECE_TYPE = Object.freeze({

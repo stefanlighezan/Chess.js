@@ -129,6 +129,7 @@ let chessGame = {
               } else {
                 chessGame.turn = COLOR.WHITE
               }
+              }
             }
           });
   
