@@ -123,6 +123,8 @@ let chessGame = {
                 chessGame.selected = null;
                 chessGame.selectedPos = null;
                 initializeChessboard();
+
+                chessGame.turn == "White" ? "Black" : "White"
               }
             }
           });
