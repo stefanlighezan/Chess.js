@@ -19,9 +19,6 @@ class Piece {
     }
   
     move(currentRow, currentColumn, desiredRow, desiredColumn, setup) {
-      if (this.getType() == PIECE_TYPE.PAWN) {
-        Pawn.move(currentRow, currentColumn, desiredRow, desiredColumn, setup);
-      }
       return setup;
     }
   
@@ -93,7 +90,7 @@ class Piece {
     ROOK: "Rook",
     QUEEN: "Queen",
     KING: "King",
-    NULL: "Null",
+    EMPTY: "EMPTY",
   });
   
   const COLOR = Object.freeze({
@@ -119,7 +116,6 @@ class Piece {
       if (move != null) {
         return move;
       }
-      alert("Invalid Move for Pawn");
       return null;
     }
   
@@ -734,7 +730,7 @@ class Piece {
   
   class Empty extends Piece {
     constructor() {
-      super(PIECE_TYPE.NULL, null);
+      super(PIECE_TYPE.EMPTY, null);
     }
   
     getColor() {
@@ -783,4 +779,3 @@ class Piece {
   
     return setup;
   }
-  
