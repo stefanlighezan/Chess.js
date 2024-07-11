@@ -1,5 +1,5 @@
 let chessGame = {
-    turn: "white",
+    turn: "White",
     selected: null,
     selectedPos: null
 }
@@ -18,50 +18,49 @@ let setup = [
 ];
 
 document.addEventListener("DOMContentLoaded", function() {
-    initializeChessboard()
+    initializeChessboard();
     let posX = 0;
-let posY = 0;
+    let posY = 0;
 
-// Event listener for key presses
-document.addEventListener('keydown', (event) => {
-    const step = 50; // Step size for movement
+    // Event listener for key presses
+    document.addEventListener('keydown', (event) => {
+        const step = 50; // Step size for movement
 
-    switch (event.key) {
-        case 'w':
-            posY += step;
-            break;
-        case 's':
-            posY -= step;
-            break;
-        case 'a':
-            posX += step;
-            break;
-        case 'd':
-            posX -= step;
-            break;
-        default:
-            return; // Exit function if key is not WASD
-    }
+        switch (event.key) {
+            case 'w':
+                posY += step;
+                break;
+            case 's':
+                posY -= step;
+                break;
+            case 'a':
+                posX += step;
+                break;
+            case 'd':
+                posX -= step;
+                break;
+            default:
+                return; // Exit function if key is not WASD
+        }
 
-    // Apply new position with rubber band effect
-    const maxOffset = 100; // Maximum offset from center
+        // Apply new position with rubber band effect
+        const maxOffset = 100; // Maximum offset from center
 
-    if (Math.abs(posX) > maxOffset) {
-        posX = posX > 0 ? maxOffset : -maxOffset;
-    }
-    if (Math.abs(posY) > maxOffset) {
-        posY = posY > 0 ? maxOffset : -maxOffset;
-    }
+        if (Math.abs(posX) > maxOffset) {
+            posX = posX > 0 ? maxOffset : -maxOffset;
+        }
+        if (Math.abs(posY) > maxOffset) {
+            posY = posY > 0 ? maxOffset : -maxOffset;
+        }
 
-    chessboard.style.transform = `translateX(${posX}px) translateY(${posY}px)`;
+        chessboard.style.transform = `translateX(${posX}px) translateY(${posY}px)`;
+    });
 });
-});
-
 
 function initializeChessboard() {
     const chessboard = document.getElementById('chessboard');
 
-    chessboard.innerHTML = ""
+    chessboard.innerHTML = "";
 
     for (let i = 0; i < 64; i++) {
         const square = document.createElement('div');
@@ -81,7 +80,6 @@ function initializeChessboard() {
     }
 
     // Piece setup
-
     for (let row = 0; row < 8; row++) {
         for (let col = 0; col < 8; col++) {
             const piece = setup[row][col];
@@ -91,25 +89,32 @@ function initializeChessboard() {
                 pieceElement.classList.add('piece');
                 square.addEventListener('click', function() {
                     if (chessGame.selected == null) {
-                        chessGame.selected = setup[row][col]
-                        chessGame.selectedPos = {r: row, c: col}
-                        console.log(chessGame.selectedPos)
+                        if(setup[row][col].getColor() == chessGame.turn) {
+                            chessGame.selected = setup[row][col];
+                            chessGame.selectedPos = { r: row, c: col };
+                            highlightPossibleMoves(chessGame.selected, row, col, setup);
+                        }
                     } else {
-                        console.log("moved")
-                        setup = chessGame.selected.move(chessGame.selectedPos["r"], chessGame.selectedPos["c"], row, col, setup);
-                        initializeChessboard()
-                        chessGame.selected = null;
-                        chessGame.selectedPos = null
+                        if (setup[row][col].getColor() === chessGame.selected.getColor()) {
+                            chessGame.selected = setup[row][col];
+                            chessGame.selectedPos = { r: row, c: col };
+                            clearHighlights();
+                            highlightPossibleMoves(chessGame.selected, row, col, setup);
+                        } else {
+                            setup = chessGame.selected.move(chessGame.selectedPos.r, chessGame.selectedPos.c, row, col, setup);
+                            chessGame.selected = null;
+                            chessGame.selectedPos = null;
+                            initializeChessboard();
+                        }
                     }
-
-                    // Clear selected after movement
                 });
 
                 square.addEventListener('contextmenu', (ev) => {
                     ev.preventDefault();
-                    chessGame.selected = null
-                    chessGame.selectedPos = null
-                })
+                    chessGame.selected = null;
+                    chessGame.selectedPos = null;
+                    clearHighlights();
+                });
 
                 pieceElement.textContent = getPieceSymbol(piece); // Get the correct symbol for the piece
                 square.appendChild(pieceElement);
@@ -117,11 +122,20 @@ function initializeChessboard() {
         }
     }
 
-    function handleSquareClick(row, col) {
-        const square = chessboard.children[row * 8 + col];
-        // You can do something with the selected piece here
-        chessGame.selected = { row, col }; // Example: Saving the selected square
-        console.log(`Selected square: (${row}, ${col})`);
+    function highlightPossibleMoves(piece, row, col, setup) {
+        clearHighlights();
+        const possibleMoves = piece.getPossibleMoves(row, col, setup);
+        possibleMoves.forEach(move => {
+            const moveSquare = chessboard.children[move.row * 8 + move.col];
+            moveSquare.classList.add('highlight');
+        });
+    }
+
+    function clearHighlights() {
+        const highlightedSquares = chessboard.querySelectorAll('.highlight');
+        highlightedSquares.forEach(square => {
+            square.classList.remove('highlight');
+        });
     }
 
     function getPieceSymbol(piece) {

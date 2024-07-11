@@ -8,6 +8,11 @@ body {
     overflow: hidden; /* Prevent scrolling */
 }
 
+.square.highlight {
+    background-color: rgb(255, 30, 30);
+}
+
+
 #chessboard {
     display: grid;
     grid-template-columns: repeat(8, 1fr);
