@@ -1,5 +1,5 @@
 let chessGame = {
-    turn: "White",
+    turn: COLOR.WHITE,
     selected: null,
     selectedPos: null,
   };
@@ -124,7 +124,10 @@ let chessGame = {
                 chessGame.selectedPos = null;
                 initializeChessboard();
 
-                chessGame.turn == "White" ? "Black" : "White"
+               if(chessGame.turn == COLOR.WHITE) {
+                chessGame.turn = COLOR.BLACK
+              } else {
+                chessGame.turn = COLOR.WHITE
               }
             }
           });
