@@ -113,22 +113,25 @@ let chessGame = {
                 clearHighlights();
                 highlightPossibleMoves(chessGame.selected, row, col, setup);
               } else {
-                setup = chessGame.selected.move(
+                let set = chessGame.selected.move(
                   chessGame.selectedPos.r,
                   chessGame.selectedPos.c,
                   row,
                   col,
                   setup,
                 );
-                chessGame.selected = null;
-                chessGame.selectedPos = null;
-                initializeChessboard();
-
-               if(chessGame.turn == COLOR.WHITE) {
-                chessGame.turn = COLOR.BLACK
-              } else {
-                chessGame.turn = COLOR.WHITE
-              }
+                if (set != null) {
+                  setup = set;
+                  chessGame.selected = null;
+                  chessGame.selectedPos = null;
+                  initializeChessboard();
+  
+                  if (chessGame.turn == COLOR.WHITE) {
+                    chessGame.turn = COLOR.BLACK;
+                  } else {
+                    chessGame.turn = COLOR.WHITE;
+                  }
+                }
               }
             }
           });
@@ -201,5 +204,39 @@ let chessGame = {
         }
       }
     }
+  }
+  
+
+  function isKingInCheck(setup, color) {
+    let kingPosition = null;
+    // Find the king
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 8; col++) {
+        const piece = setup[row][col];
+        if (piece instanceof King && piece.getColor() == color) {
+          kingPosition = { row, col };
+          break;
+        }
+      }
+    }
+
+    if (!kingPosition) return false;
+
+    // Check if any opponent piece can attack the king
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 8; col++) {
+        const piece = setup[row][col];
+        if (piece.getColor() != color && piece.getColor() != null) {
+          const possibleMoves = piece.getPossibleMoves(row, col, setup);
+          for (const move of possibleMoves) {
+            if (move.row == kingPosition.row && move.col == kingPosition.col) {
+              return true;
+            }
+          }
+        }
+      }
+    }
+
+    return false;
   }
   

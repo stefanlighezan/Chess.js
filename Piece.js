@@ -3,6 +3,7 @@ class Piece {
       this.type = type;
       this.color = color;
     }
+
   
     getType() {
       return this.type;
@@ -118,7 +119,7 @@ class Piece {
         return move;
       }
       alert("Invalid Move for Pawn");
-      return setup;
+      return null;
     }
   
     getPossibleMoves(currentRow, currentColumn, setup) {
@@ -281,7 +282,7 @@ class Piece {
         return setup;
       } else {
         console.log("Invalid Move for Knight");
-        return setup;
+        return null;
       }
     }
   
@@ -362,7 +363,7 @@ class Piece {
         return setup;
       } else {
         console.log("Invalid Move for Bishop");
-        return setup;
+        return null;
       }
     }
   
@@ -460,7 +461,7 @@ class Piece {
         return setup;
       } else {
         console.log("Invalid Move for Rook");
-        return setup;
+        return null;
       }
     }
   
@@ -573,7 +574,7 @@ class Piece {
         return setup;
       } else {
         console.log("Invalid Move for Queen");
-        return setup;
+        return null;
       }
     }
   
@@ -665,7 +666,7 @@ class Piece {
         return setup;
       } else {
         console.log("Invalid Move for King");
-        return setup;
+        return null;
       }
     }
   
@@ -749,7 +750,7 @@ class Piece {
   
     move(currentRow, currentColumn, desiredRow, desiredColumn, setup) {
       console.log("Invalid Move for Empty");
-      return setup;
+      return null;
     }
   
     getPossibleMoves(currentRow, currentColumn, setup) {
