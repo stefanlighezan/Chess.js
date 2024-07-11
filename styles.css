@@ -6,7 +6,6 @@ body {
     background-color: #f0f0f0;
     margin: 0;
     overflow: hidden; /* Prevent scrolling */
-    position: relative; /* Ensure relative positioning for absolute footer */
 }
 
 .square.highlight {
@@ -30,17 +29,18 @@ body {
     width: 80vmin;
     height: 80vmin;
     border: 2px solid #333;
+    margin: 20px 0;
 }
 
 #container {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100%;
     transform-style: preserve-3d;
     transition: transform 0.5s ease-out;
-    perspective: 1000px; /* Perspective for 3D effect */
-    position: relative; /* Ensure relative positioning for absolute footer */
+    perspective: 1000px;
 }
 
 #controls {
@@ -48,7 +48,7 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin-left: 20px;
+    margin-top: 20px;
 }
 
 button {
@@ -86,4 +86,25 @@ button:hover {
 
 .piece {
     font-size: 2em;
+}
+
+#capturedPiecesContainer {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+}
+
+#whiteCaptured, #blackCaptured {
+    text-align: center;
+}
+
+#whiteCapturedPieces, #blackCapturedPieces {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 10px;
+    border: 1px solid #333;
+    min-width: 100px;
+    min-height: 50px;
+    margin-bottom: 10px;
 }

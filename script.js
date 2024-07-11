@@ -1,4 +1,3 @@
-
 let chessGame = {
   turn: COLOR.WHITE,
   selected: null,
@@ -11,8 +10,8 @@ let setup = newBadChessVariant();
 
 document.addEventListener("DOMContentLoaded", function () {
   initializeChessboard();
-  chessboard.classList.remove("tremor"); 
-  
+  chessboard.classList.remove("tremor");
+
   let posX = 0;
   let posY = 0;
   let isMouseDown = false;
@@ -50,8 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const resetButton = document.getElementById("resetButton");
   const badChessButton = document.getElementById("badChessVariantButton");
 
-  resetButton.addEventListener("click", resetBoard);
-  badChessButton.addEventListener("click", function () {
+  resetButton.addEventListener("click", () => {
     setup = newBadChessVariant();
     resetBoard();
   });
@@ -73,7 +71,7 @@ function newBadChessVariant() {
 
   for (let row = 0; row < 8; row++) {
     setup[row] = [];
-    
+
     let color = COLOR.BLACK;
     if (row >= 6) {
       color = COLOR.WHITE;
@@ -83,16 +81,20 @@ function newBadChessVariant() {
 
     for (let col = 0; col < 8; col++) {
       let piece = new Empty();
-      
+
       if ((row === 0 || row === 7) && col === 4) {
         piece = new King(row === 0 ? COLOR.BLACK : COLOR.WHITE);
         if (row === 0) blackPiecesLeft--;
         else whitePiecesLeft--;
       } else {
-        if ((color === COLOR.WHITE && whitePiecesLeft > 0) || (color === COLOR.BLACK && blackPiecesLeft > 0)) {
-          const randomPieceType = pieceTypes[Math.floor(Math.random() * pieceTypes.length)];
+        if (
+          (color === COLOR.WHITE && whitePiecesLeft > 0) ||
+          (color === COLOR.BLACK && blackPiecesLeft > 0)
+        ) {
+          const randomPieceType =
+            pieceTypes[Math.floor(Math.random() * pieceTypes.length)];
           piece = createPiece(randomPieceType, color);
-          
+
           if (color === COLOR.BLACK) {
             blackPiecesLeft--;
           } else {
@@ -100,7 +102,7 @@ function newBadChessVariant() {
           }
         }
       }
-      
+
       setup[row][col] = piece;
     }
   }
@@ -196,10 +198,11 @@ function initializeChessboard() {
                   return;
                 }
 
-                chessGame.turn = (chessGame.turn == COLOR.WHITE) ? COLOR.BLACK : COLOR.WHITE;
+                chessGame.turn =
+                  chessGame.turn == COLOR.WHITE ? COLOR.BLACK : COLOR.WHITE;
 
                 if (chessGame.turn === COLOR.BLACK) {
-                  setTimeout(moveAI, 500); // Delay to simulate thinking time
+                  setTimeout(moveAI, 500);
                 }
               }
             }
@@ -280,9 +283,9 @@ function isKingMissing(setup) {
   let whiteKingAlive = false;
   let blackKingAlive = false;
 
-  for (let row = 0; row < 8; row++) {
-    for (let col = 0; col < 8; col++) {
-      const piece = setup[row][col];
+  for (let r1 = 0; r1 < 8; r1++) {
+    for (let c1 = 0; c1 < 8; c1++) {
+      const piece = setup[r1][c1];
       if (piece instanceof King) {
         if (piece.getColor() === COLOR.WHITE) {
           whiteKingAlive = true;
@@ -324,31 +327,108 @@ function isKingPresent(setup, color) {
 }
 
 function moveAI() {
-  const moves = [];
+  const bestMove = minimax(setup, 2, true);
+  const { piece, from, to } = bestMove;
+  setup = piece.move(from.row, from.col, to.row, to.col, setup);
+  initializeChessboard();
 
+  if (isKingMissing(setup)) {
+    declareWinner();
+    return;
+  }
+
+  chessGame.turn = COLOR.WHITE;
+}
+
+function minimax(board, depth, isMaximizing) {
+  if (board == null) {
+    return { score: 0 };
+  }
+  if (depth === 0 || isKingMissing(board)) {
+    return { score: evaluateBoard(board) };
+  }
+
+  const moves = [];
   for (let row = 0; row < 8; row++) {
     for (let col = 0; col < 8; col++) {
-      const piece = setup[row][col];
-      if (piece.getColor() === COLOR.BLACK) {
-        const possibleMoves = piece.getPossibleMoves(row, col, setup);
-        possibleMoves.forEach(move => {
+      const piece = board[row][col];
+      if (piece.getColor() === (isMaximizing ? COLOR.BLACK : COLOR.WHITE)) {
+        const possibleMoves = piece.getPossibleMoves(row, col, board);
+        possibleMoves.forEach((move) => {
           moves.push({ piece, from: { row, col }, to: move });
         });
       }
     }
   }
 
-  if (moves.length > 0) {
-    const randomMove = moves[Math.floor(Math.random() * moves.length)];
-    const { piece, from, to } = randomMove;
-    setup = piece.move(from.row, from.col, to.row, to.col, setup);
-    initializeChessboard();
-
-    if (isKingMissing(setup)) {
-      declareWinner();
-      return;
+  let bestMove;
+  if (isMaximizing) {
+    let maxEval = -Infinity;
+    for (const move of moves) {
+      const newBoard = move.piece.move(
+        move.from.row,
+        move.from.col,
+        move.to.row,
+        move.to.col,
+        [...board.map((arr) => [...arr])],
+      );
+      const eval = minimax(newBoard, depth - 1, false).score;
+      if (eval > maxEval) {
+        maxEval = eval;
+        bestMove = move;
+      }
     }
+    bestMove.score = maxEval;
+  } else {
+    let minEval = Infinity;
+    for (const move of moves) {
+      const newBoard = move.piece.move(
+        move.from.row,
+        move.from.col,
+        move.to.row,
+        move.to.col,
+        [...board.map((arr) => [...arr])],
+      );
+      const eval = minimax(newBoard, depth - 1, true).score;
+      if (eval < minEval) {
+        minEval = eval;
+        bestMove = move;
+      }
+    }
+    bestMove.score = minEval;
+  }
+  return bestMove;
+}
 
-    chessGame.turn = COLOR.WHITE;
+function evaluateBoard(board) {
+  let score = 0;
+  for (let row = 0; row < 8; row++) {
+    for (let col = 0; col < 8; col++) {
+      const piece = board[row][col];
+      if (piece && piece.getType) {
+        score += getPieceValue(piece);
+      }
+    }
+  }
+  return score;
+}
+
+function getPieceValue(piece) {
+  const colorMultiplier = piece.getColor() === COLOR.WHITE ? -1 : 1;
+  switch (piece.getType()) {
+    case PIECE_TYPE.PAWN:
+      return 10 * colorMultiplier;
+    case PIECE_TYPE.KNIGHT:
+      return 30 * colorMultiplier;
+    case PIECE_TYPE.BISHOP:
+      return 30 * colorMultiplier;
+    case PIECE_TYPE.ROOK:
+      return 50 * colorMultiplier;
+    case PIECE_TYPE.QUEEN:
+      return 90 * colorMultiplier;
+    case PIECE_TYPE.KING:
+      return 900 * colorMultiplier;
+    default:
+      return 0;
   }
 }
