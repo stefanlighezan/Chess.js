@@ -6,19 +6,21 @@ body {
     background-color: #f0f0f0;
     margin: 0;
     overflow: hidden; /* Prevent scrolling */
+    position: relative; /* Ensure relative positioning for absolute footer */
 }
 
 .square.highlight {
     background-color: rgb(255, 30, 30);
 }
+
 @keyframes tremor {
-  0% { transform: translate(0, 0); }
-  10%, 30%, 50%, 70%, 90% { transform: translate(-5px, -5px); }
-  20%, 40%, 60%, 80%, 100% { transform: translate(5px, 5px); }
+    0% { transform: translate(0, 0); }
+    10%, 30%, 50%, 70%, 90% { transform: translate(-5px, -5px); }
+    20%, 40%, 60%, 80%, 100% { transform: translate(5px, 5px); }
 }
 
 .tremor {
-  animation: tremor 0.5s ease-in-out;
+    animation: tremor 0.5s ease-in-out;
 }
 
 #chessboard {
@@ -38,6 +40,7 @@ body {
     transform-style: preserve-3d;
     transition: transform 0.5s ease-out;
     perspective: 1000px; /* Perspective for 3D effect */
+    position: relative; /* Ensure relative positioning for absolute footer */
 }
 
 #controls {

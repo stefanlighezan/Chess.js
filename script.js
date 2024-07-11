@@ -6,34 +6,7 @@ let chessGame = {
 
 const container = document.getElementById("container");
 
-let setup = [
-  [
-    new Rook(COLOR.BLACK),
-    new Knight(COLOR.BLACK),
-    new Bishop(COLOR.BLACK),
-    new Queen(COLOR.BLACK),
-    new King(COLOR.BLACK),
-    new Bishop(COLOR.BLACK),
-    new Knight(COLOR.BLACK),
-    new Rook(COLOR.BLACK),
-  ],
-  Array(8).fill(new Pawn(COLOR.BLACK)),
-  Array(8).fill(new Empty()),
-  Array(8).fill(new Empty()),
-  Array(8).fill(new Empty()),
-  Array(8).fill(new Empty()),
-  Array(8).fill(new Pawn(COLOR.WHITE)),
-  [
-    new Rook(COLOR.WHITE),
-    new Knight(COLOR.WHITE),
-    new Bishop(COLOR.WHITE),
-    new Queen(COLOR.WHITE),
-    new King(COLOR.WHITE),
-    new Bishop(COLOR.WHITE),
-    new Knight(COLOR.WHITE),
-    new Rook(COLOR.WHITE),
-  ],
-];
+let setup = newBadChessVariant(); // Initialize with the bad chess variant
 
 document.addEventListener("DOMContentLoaded", function () {
   initializeChessboard();
@@ -70,11 +43,93 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       container.style.transform = `translateX(${posX}px) translateY(${posY}px)`;
-      const resetButton = document.getElementById("resetButton");
-      resetButton.addEventListener("click", resetBoard);
     }
   });
+
+  const resetButton = document.getElementById("resetButton");
+  const badChessButton = document.getElementById("badChessVariantButton");
+
+  resetButton.addEventListener("click", resetBoard);
+  badChessButton.addEventListener("click", function () {
+    setup = newBadChessVariant();
+    resetBoard(); // Optionally reset other game state when changing variants
+  });
 });
+
+function newBadChessVariant() {
+  const setup = [];
+  const pieceOrder = [Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook];
+  const pieceTypes = [
+    PIECE_TYPE.PAWN,
+    PIECE_TYPE.KNIGHT,
+    PIECE_TYPE.BISHOP,
+    PIECE_TYPE.ROOK,
+    PIECE_TYPE.QUEEN,
+  ];
+
+  let whitePiecesLeft = 16; // Including 1 King
+  let blackPiecesLeft = 16; // Including 1 King
+
+  // Initialize the board
+  for (let row = 0; row < 8; row++) {
+    setup[row] = [];
+    
+    // Determine color based on row position
+    let color = COLOR.BLACK; // Default to black for top two ranks
+    if (row >= 6) {
+      color = COLOR.WHITE; // Switch to white for bottom two ranks
+    }
+
+    // Shuffle piece order for each row
+    pieceOrder.sort(() => Math.random() - 0.5);
+
+    for (let col = 0; col < 8; col++) {
+      let piece = new Empty();
+      
+      // Ensure one king per side
+      if ((row === 0 || row === 7) && col === 4) {
+        piece = new King(row === 0 ? COLOR.BLACK : COLOR.WHITE);
+        if (row === 0) blackPiecesLeft--;
+        else whitePiecesLeft--;
+      } else {
+        // Randomly assign other pieces
+        if ((color === COLOR.WHITE && whitePiecesLeft > 0) || (color === COLOR.BLACK && blackPiecesLeft > 0)) {
+          const randomPieceType = pieceTypes[Math.floor(Math.random() * pieceTypes.length)];
+          piece = createPiece(randomPieceType, color);
+          
+          // Decrease count for the assigned color
+          if (color === COLOR.BLACK) {
+            blackPiecesLeft--;
+          } else {
+            whitePiecesLeft--;
+          }
+        }
+      }
+      
+      setup[row][col] = piece;
+    }
+  }
+
+  return setup;
+}
+
+
+function createPiece(pieceType, color) {
+  switch (pieceType) {
+    case PIECE_TYPE.PAWN:
+      return new Pawn(color);
+    case PIECE_TYPE.KNIGHT:
+      return new Knight(color);
+    case PIECE_TYPE.BISHOP:
+      return new Bishop(color);
+    case PIECE_TYPE.ROOK:
+      return new Rook(color);
+    case PIECE_TYPE.QUEEN:
+      return new Queen(color);
+    default:
+      return new Empty();
+  }
+}
 
 function resetBoard() {
   // Reset game state variables if any
@@ -82,45 +137,12 @@ function resetBoard() {
   chessGame.selected = null;
   chessGame.selectedPos = null;
 
-  // Reset setup to initial configuration
-  setup = [
-    [
-      new Rook(COLOR.BLACK),
-      new Knight(COLOR.BLACK),
-      new Bishop(COLOR.BLACK),
-      new Queen(COLOR.BLACK),
-      new King(COLOR.BLACK),
-      new Bishop(COLOR.BLACK),
-      new Knight(COLOR.BLACK),
-      new Rook(COLOR.BLACK),
-    ],
-    Array(8).fill(new Pawn(COLOR.BLACK)),
-    Array(8).fill(new Empty()),
-    Array(8).fill(new Empty()),
-    Array(8).fill(new Empty()),
-    Array(8).fill(new Empty()),
-    Array(8).fill(new Pawn(COLOR.WHITE)),
-    [
-      new Rook(COLOR.WHITE),
-      new Knight(COLOR.WHITE),
-      new Bishop(COLOR.WHITE),
-      new Queen(COLOR.WHITE),
-      new King(COLOR.WHITE),
-      new Bishop(COLOR.WHITE),
-      new Knight(COLOR.WHITE),
-      new Rook(COLOR.WHITE),
-    ],
-  ];
-
-  // Reinitialize the chessboard UI
   initializeChessboard();
   chessboard.classList.add("tremor");
   setTimeout(() => {
     chessboard.classList.remove("tremor");
-  }, 500)
+  }, 500);
 }
-
-
 
 function initializeChessboard() {
   const chessboard = document.getElementById("chessboard");
@@ -261,7 +283,6 @@ function initializeChessboard() {
   }
 }
 
-
 function isKingMissing(setup) {
   let whiteKingAlive = false;
   let blackKingAlive = false;
@@ -296,8 +317,6 @@ function declareWinner() {
     location.reload(); // Reload page after delay
   }, 1000); // Adjust delay time as needed
 }
-
-
 
 function isKingPresent(setup, color) {
   for (let row = 0; row < 8; row++) {
