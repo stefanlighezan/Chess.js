@@ -4,6 +4,8 @@ let chessGame = {
     selectedPos: null
 }
 
+const container = document.getElementById('container');
+
 let setup = [
     [new Rook(COLOR.BLACK), new Knight(COLOR.BLACK), new Bishop(COLOR.BLACK), new Queen(COLOR.BLACK), new King(COLOR.BLACK), new Bishop(COLOR.BLACK), new Knight(COLOR.BLACK), new Rook(COLOR.BLACK)],
     Array(8).fill(new Pawn(COLOR.BLACK)),
@@ -17,6 +19,42 @@ let setup = [
 
 document.addEventListener("DOMContentLoaded", function() {
     initializeChessboard()
+    let posX = 0;
+let posY = 0;
+
+// Event listener for key presses
+document.addEventListener('keydown', (event) => {
+    const step = 50; // Step size for movement
+
+    switch (event.key) {
+        case 'w':
+            posY += step;
+            break;
+        case 's':
+            posY -= step;
+            break;
+        case 'a':
+            posX += step;
+            break;
+        case 'd':
+            posX -= step;
+            break;
+        default:
+            return; // Exit function if key is not WASD
+    }
+
+    // Apply new position with rubber band effect
+    const maxOffset = 100; // Maximum offset from center
+
+    if (Math.abs(posX) > maxOffset) {
+        posX = posX > 0 ? maxOffset : -maxOffset;
+    }
+    if (Math.abs(posY) > maxOffset) {
+        posY = posY > 0 ? maxOffset : -maxOffset;
+    }
+
+    chessboard.style.transform = `translateX(${posX}px) translateY(${posY}px)`;
+});
 });
 
 

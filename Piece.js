@@ -133,9 +133,39 @@ class Piece {
   
   class Knight extends Piece {
     constructor(color) {
-      super(PIECE_TYPE.KNIGHT, color);
+        super(PIECE_TYPE.KNIGHT, color);
     }
-  }
+
+    move(currentRow, currentColumn, desiredRow, desiredColumn, setup) {
+        // Validate Knight move
+        if (validateKnightMove(currentRow, currentColumn, desiredRow, desiredColumn, setup)) {
+            setup[desiredRow][desiredColumn] = setup[currentRow][currentColumn];
+            setup[currentRow][currentColumn] = new Empty();
+            return setup;
+        } else {
+            console.log("Invalid Move for Knight");
+            return setup;
+        }
+    }
+}
+function validateKnightMove(currentRow, currentColumn, desiredRow, desiredColumn, setup) {
+    // Knight moves in an L shape: 2 squares in one direction and 1 square perpendicular
+    const deltaX = Math.abs(desiredColumn - currentColumn);
+    const deltaY = Math.abs(desiredRow - currentRow);
+
+    if ((deltaX === 1 && deltaY === 2) || (deltaX === 2 && deltaY === 1)) {
+        // Destination square must either be empty or have an opponent's piece
+        const destinationPiece = setup[desiredRow][desiredColumn];
+        const currentPiece = setup[currentRow][currentColumn];
+        if (destinationPiece instanceof Empty || destinationPiece.getColor() !== currentPiece.getColor()) {
+            return true;
+        }
+    }
+
+    console.log("Invalid knight move");
+    return false;
+}
+
   
   class Bishop extends Piece {
     constructor(color) {
@@ -196,11 +226,61 @@ class Piece {
 
   
   
-  class Rook extends Piece {
-    constructor(color) {
-      super(PIECE_TYPE.ROOK, color);
+    class Rook extends Piece {
+        constructor(color) {
+            super(PIECE_TYPE.ROOK, color);
+        }
+    
+        move(currentRow, currentColumn, desiredRow, desiredColumn, setup) {
+            // Validate Rook move
+            if (validateRookMove(currentRow, currentColumn, desiredRow, desiredColumn, setup)) {
+                setup[desiredRow][desiredColumn] = setup[currentRow][currentColumn];
+                setup[currentRow][currentColumn] = new Empty();
+                return setup;
+            } else {
+                console.log("Invalid Move for Rook");
+                return setup;
+            }
+        }
     }
-  }
+    
+    function validateRookMove(currentRow, currentColumn, desiredRow, desiredColumn, setup) {
+        // Rook moves vertically or horizontally: either the row or the column must match
+        if (currentRow === desiredRow || currentColumn === desiredColumn) {
+            // Check if there are any pieces obstructing the path
+            if (currentRow === desiredRow) {
+                // Moving horizontally
+                const minCol = Math.min(currentColumn, desiredColumn);
+                const maxCol = Math.max(currentColumn, desiredColumn);
+                for (let col = minCol + 1; col < maxCol; col++) {
+                    if (setup[currentRow][col].getType() !== PIECE_TYPE.NULL) {
+                        console.log("Path is obstructed by a piece");
+                        return false; // Path is obstructed
+                    }
+                }
+            } else {
+                // Moving vertically
+                const minRow = Math.min(currentRow, desiredRow);
+                const maxRow = Math.max(currentRow, desiredRow);
+                for (let row = minRow + 1; row < maxRow; row++) {
+                    if (setup[row][currentColumn].getType() !== PIECE_TYPE.NULL) {
+                        console.log("Path is obstructed by a piece");
+                        return false; // Path is obstructed
+                    }
+                }
+            }
+    
+            // Destination square must either be empty or have an opponent's piece
+            const destinationPiece = setup[desiredRow][desiredColumn];
+            const currentPiece = setup[currentRow][currentColumn];
+            if (destinationPiece instanceof Empty || destinationPiece.getColor() !== currentPiece.getColor()) {
+                return true;
+            }
+        }
+    
+        console.log("Invalid rook move");
+        return false;
+    }
   
   class Queen extends Piece {
     constructor(color) {
@@ -210,9 +290,41 @@ class Piece {
   
   class King extends Piece {
     constructor(color) {
-      super(PIECE_TYPE.KING, color);
+        super(PIECE_TYPE.KING, color);
     }
-  }
+
+    move(currentRow, currentColumn, desiredRow, desiredColumn, setup) {
+        // Validate King move
+        if (validateKingMove(currentRow, currentColumn, desiredRow, desiredColumn, setup)) {
+            setup[desiredRow][desiredColumn] = setup[currentRow][currentColumn];
+            setup[currentRow][currentColumn] = new Empty();
+            return setup;
+        } else {
+            console.log("Invalid Move for King");
+            return setup;
+        }
+    }
+}
+
+function validateKingMove(currentRow, currentColumn, desiredRow, desiredColumn, setup) {
+    // King moves one square in any direction
+    const deltaX = Math.abs(desiredColumn - currentColumn);
+    const deltaY = Math.abs(desiredRow - currentRow);
+
+    // Check if the move is within the King's range (1 square in any direction)
+    if ((deltaX === 1 && deltaY === 0) || (deltaX === 0 && deltaY === 1) || (deltaX === 1 && deltaY === 1)) {
+        // Destination square must either be empty or have an opponent's piece
+        const destinationPiece = setup[desiredRow][desiredColumn];
+        const currentPiece = setup[currentRow][currentColumn];
+        if (destinationPiece instanceof Empty || destinationPiece.getColor() !== currentPiece.getColor()) {
+            return true;
+        }
+    }
+
+    console.log("Invalid king move");
+    return false;
+}
+
   
   class Empty extends Piece {
     constructor(color) {

@@ -3,8 +3,9 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    margin: 0;
     background-color: #f0f0f0;
+    margin: 0;
+    overflow: hidden; /* Prevent scrolling */
 }
 
 #chessboard {
@@ -13,8 +14,20 @@ body {
     grid-template-rows: repeat(8, 1fr);
     width: 80vmin;
     height: 80vmin;
+    transform-style: preserve-3d;
+    transition: transform 0.5s ease-out;
     border: 2px solid #333;
 }
+
+#container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    perspective: 1000px; /* Perspective for 3D effect */
+}
+
+
 
 .square {
     width: 100%;
@@ -26,11 +39,11 @@ body {
 }
 
 .black {
-    background-color: #769656;
+    background-color: rgb(30, 144, 255);
 }
 
 .white {
-    background-color: #eeeed2;
+    background-color: #fff;
 }
 
 .piece {
