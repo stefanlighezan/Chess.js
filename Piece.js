@@ -4,6 +4,7 @@ class Piece {
       this.color = color;
     }
 
+    
   
     getType() {
       return this.type;
