@@ -2,9 +2,11 @@ let chessGame = {
   turn: COLOR.WHITE,
   selected: null,
   selectedPos: null,
+  lastMove: null,
 };
 
 const container = document.getElementById("container");
+const backButton = document.getElementById("backButton");
 
 let setup = newBadChessVariant();
 
@@ -17,6 +19,15 @@ document.addEventListener("DOMContentLoaded", function () {
   let isMouseDown = false;
   let initialX = 0;
   let initialY = 0;
+
+  backButton.addEventListener("click", () => {
+    if (chessGame.lastMove) {
+      setup = chessGame.lastMove;
+      chessGame.lastMove = null;
+      initializeChessboard();
+      chessGame.turn == "White";
+    }
+  });
 
   container.addEventListener("mousedown", function (event) {
     isMouseDown = true;
@@ -180,6 +191,7 @@ function initializeChessboard() {
               clearHighlights();
               highlightPossibleMoves(chessGame.selected, row, col, setup);
             } else {
+              chessGame.lastMove = setup.map((row) => row.slice());
               let set = chessGame.selected.move(
                 chessGame.selectedPos.r,
                 chessGame.selectedPos.c,
@@ -309,9 +321,6 @@ function declareWinner() {
       alert("White wins!");
     }
   }
-  setTimeout(() => {
-    location.reload();
-  }, 1000);
 }
 
 function isKingPresent(setup, color) {
