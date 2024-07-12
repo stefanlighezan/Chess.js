@@ -7,6 +7,15 @@ let chessGame = {
 
 const container = document.getElementById("container");
 const backButton = document.getElementById("backButton");
+const aiDepthInput = document.getElementById("aiDepth");
+const aiDepthValue = document.getElementById("aiDepthValue");
+
+let aiDepth = 2;
+
+aiDepthInput.addEventListener("input", function() {
+  aiDepth = parseInt(this.value);
+  aiDepthValue.textContent = this.value;
+});
 
 let setup = newBadChessVariant();
 
@@ -23,16 +32,18 @@ document.addEventListener("DOMContentLoaded", function () {
   backButton.addEventListener("click", () => {
     if (chessGame.lastMove) {
       setup = chessGame.lastMove;
+      chessGame.turn == COLOR.WHITE;
       chessGame.lastMove = null;
       initializeChessboard();
-      chessGame.turn == "White";
     }
   });
 
   container.addEventListener("mousedown", function (event) {
-    isMouseDown = true;
-    initialX = event.clientX - posX;
-    initialY = event.clientY - posY;
+    if (!controls.contains(event.target)) {
+      isMouseDown = true;
+      initialX = event.clientX - posX;
+      initialY = event.clientY - posY;
+    }
   });
 
   container.addEventListener("mouseup", function () {
@@ -336,7 +347,7 @@ function isKingPresent(setup, color) {
 }
 
 function moveAI() {
-  const bestMove = minimax(setup, 2, true);
+  const bestMove = minimax(setup, aiDepth, true);
   const { piece, from, to } = bestMove;
   setup = piece.move(from.row, from.col, to.row, to.col, setup);
   initializeChessboard();

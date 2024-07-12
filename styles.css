@@ -6,10 +6,11 @@ body {
     background-color: #f0f0f0;
     margin: 0;
     overflow: hidden; /* Prevent scrolling */
+    font-family: Arial, sans-serif;
 }
 
 .square.highlight {
-    background-color: rgb(255, 30, 30);
+    background-color: rgba(255, 30, 30, 0.7);
 }
 
 @keyframes tremor {
@@ -28,8 +29,9 @@ body {
     grid-template-rows: repeat(8, 1fr);
     width: 80vmin;
     height: 80vmin;
-    border: 2px solid #333;
+    border: 3px solid #333;
     margin: 20px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 #container {
@@ -43,12 +45,27 @@ body {
     perspective: 1000px;
 }
 
+#aiDepth {
+    margin: 0 10px;
+    width: 150px;
+    cursor: pointer;
+}
+
 #controls {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
     align-items: center;
-    margin-top: 20px;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #333;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#aiDepthValue {
+    margin-left: 5px;
+    font-weight: bold;
+    font-size: 1.2em;
 }
 
 button {
@@ -60,11 +77,16 @@ button {
     border-radius: 5px;
     background-color: #333;
     color: white;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.3s;
 }
 
 button:hover {
     background-color: #555;
+    transform: scale(1.05);
+}
+
+button:active {
+    background-color: #111;
 }
 
 .square {
@@ -85,17 +107,19 @@ button:hover {
 }
 
 .piece {
-    font-size: 2em;
+    font-size: 2.5em;
 }
 
 #capturedPiecesContainer {
     display: flex;
     justify-content: space-around;
     width: 100%;
+    margin-top: 20px;
 }
 
 #whiteCaptured, #blackCaptured {
     text-align: center;
+    font-size: 1.2em;
 }
 
 #whiteCapturedPieces, #blackCapturedPieces {
@@ -104,7 +128,10 @@ button:hover {
     flex-wrap: wrap;
     padding: 10px;
     border: 1px solid #333;
+    border-radius: 5px;
     min-width: 100px;
     min-height: 50px;
     margin-bottom: 10px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
