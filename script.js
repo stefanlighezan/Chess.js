@@ -9,10 +9,14 @@ const container = document.getElementById("container");
 const backButton = document.getElementById("backButton");
 const aiDepthInput = document.getElementById("aiDepth");
 const aiDepthValue = document.getElementById("aiDepthValue");
+const endGamePrompt = document.getElementById("endGamePrompt");
+const playAgainButton = document.getElementById("playAgainButton");
+const screenshotButton = document.getElementById("screenshotButton");
+
 
 let aiDepth = 2;
 
-aiDepthInput.addEventListener("input", function() {
+aiDepthInput.addEventListener("input", function () {
   aiDepth = parseInt(this.value);
   aiDepthValue.textContent = this.value;
 });
@@ -37,6 +41,17 @@ document.addEventListener("DOMContentLoaded", function () {
       initializeChessboard();
     }
   });
+
+  playAgainButton.addEventListener("click", () => {
+    endGamePrompt.style.display = "none";
+    setup = newBadChessVariant();
+    resetBoard();
+  });
+  
+  screenshotButton.addEventListener("click", () => {
+    takeScreenshot();
+  });
+  
 
   container.addEventListener("mousedown", function (event) {
     if (!controls.contains(event.target)) {
@@ -327,12 +342,24 @@ function declareWinner() {
     if (!isKingPresent(setup, COLOR.WHITE)) {
       chessboard.classList.add("tremor");
       alert("Black wins!");
+      endGamePrompt.style.display = "block";
     } else if (!isKingPresent(setup, COLOR.BLACK)) {
       chessboard.classList.add("tremor");
       alert("White wins!");
+      endGamePrompt.style.display = "block";
     }
   }
 }
+
+function takeScreenshot() {
+  html2canvas(document.getElementById("chessboard")).then(canvas => {
+    const link = document.createElement("a");
+    link.href = canvas.toDataURL("image/png");
+    link.download = "chessboard.png";
+    link.click();
+  });
+}
+
 
 function isKingPresent(setup, color) {
   for (let row = 0; row < 8; row++) {

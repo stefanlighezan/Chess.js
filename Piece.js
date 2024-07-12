@@ -123,7 +123,6 @@ class Pawn extends Piece {
     const forwardDirection = this.color === COLOR.WHITE ? -1 : 1;
     const initialRow = this.color === COLOR.WHITE ? 6 : 1;
 
-    
     if (
       currentRow + forwardDirection >= 0 &&
       currentRow + forwardDirection < 8 &&
@@ -131,7 +130,6 @@ class Pawn extends Piece {
     ) {
       moves.push({ row: currentRow + forwardDirection, col: currentColumn });
 
-      
       if (
         currentRow === initialRow &&
         setup[currentRow + 2 * forwardDirection][currentColumn] instanceof Empty
@@ -143,13 +141,15 @@ class Pawn extends Piece {
       }
     }
 
-  
     if (
       currentColumn > 0 &&
       currentRow + forwardDirection >= 0 &&
       currentRow + forwardDirection < 8 &&
-      !(setup[currentRow + forwardDirection][currentColumn - 1] instanceof Empty) &&
-      setup[currentRow + forwardDirection][currentColumn - 1].getColor() !== this.color
+      !(
+        setup[currentRow + forwardDirection][currentColumn - 1] instanceof Empty
+      ) &&
+      setup[currentRow + forwardDirection][currentColumn - 1].getColor() !==
+        this.color
     ) {
       moves.push({
         row: currentRow + forwardDirection,
@@ -160,8 +160,11 @@ class Pawn extends Piece {
       currentColumn < 7 &&
       currentRow + forwardDirection >= 0 &&
       currentRow + forwardDirection < 8 &&
-      !(setup[currentRow + forwardDirection][currentColumn + 1] instanceof Empty) &&
-      setup[currentRow + forwardDirection][currentColumn + 1].getColor() !== this.color
+      !(
+        setup[currentRow + forwardDirection][currentColumn + 1] instanceof Empty
+      ) &&
+      setup[currentRow + forwardDirection][currentColumn + 1].getColor() !==
+        this.color
     ) {
       moves.push({
         row: currentRow + forwardDirection,
@@ -172,7 +175,6 @@ class Pawn extends Piece {
     return moves;
   }
 }
-
 
 function getValidMoves(
   piece,

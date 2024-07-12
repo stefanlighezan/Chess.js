@@ -13,6 +13,10 @@ body {
     background-color: rgba(255, 30, 30, 0.7);
 }
 
+.highlight-red {
+    background-color: red !important;
+  }
+
 @keyframes tremor {
     0% { transform: translate(0, 0); }
     10%, 30%, 50%, 70%, 90% { transform: translate(-5px, -5px); }
@@ -27,8 +31,8 @@ body {
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(8, 1fr);
-    width: 80vmin;
-    height: 80vmin;
+    width: 75vmin;
+    height: 75vmin;
     border: 3px solid #333;
     margin: 20px 0;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -42,7 +46,7 @@ body {
     height: 100%;
     transform-style: preserve-3d;
     transition: transform 0.5s ease-out;
-    perspective: 1000px;
+    perspective: 1500px;
 }
 
 #aiDepth {
@@ -134,4 +138,27 @@ button:active {
     margin-bottom: 10px;
     background-color: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#endGamePrompt {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border: 1px solid black;
+    padding: 20px;
+    text-align: center;
+    z-index: 1000;
+  }
+  
+footer {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    background-color: #333; /* Optional: background color */
+    color: white; /* Optional: text color */
+    padding: 10px 0; /* Optional: padding */
+    bottom: 0;
 }
